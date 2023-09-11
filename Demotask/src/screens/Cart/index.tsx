@@ -1,52 +1,70 @@
-// CartScreen.tsx
-
+// src/screens/CartScreen.tsx
 import React from 'react';
-import {View, Text, FlatList, StyleSheet} from 'react-native';
-import Header from '../../components/Header';
+import {View, Text, Button, Image, TouchableOpacity} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState} from '../../store/rootReducer';
+import {updateCartItemQuantity, removeFromCart} from '../../store/cartSlice';
 import {styles} from './styles';
-// Define the CartItem type (adjust the structure as needed)
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
+import Header from '../../components/Header';
+import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {responsiveFontSize} from 'react-native-responsive-dimensions';
+const CartScreen: React.FC = () => {
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const dispatch = useDispatch();
 
-// interface Props {
-//   cartItems: CartItem[];
-// }
+  const handleUpdateQuantity = (id: number, quantity: number) => {
+    dispatch(updateCartItemQuantity({id, quantity}));
+  };
 
-const Cart = () => {
-  //   Calculate the total price of items in the cart
-  // const totalPrice = cartItems.reduce(
-  //   (total, item) => total + item.price * item.quantity,
-  //   0,
-  // );
-
-  // const renderItem = ({item}: {item: CartItem}) => (
-  //   <View style={styles.cartItem}>
-  //     <Text style={styles.itemName}>{item.name}</Text>
-  //     <Text style={styles.itemPrice}>
-  //       ${(item.price * item.quantity).toFixed(2)}
-  //     </Text>
-  //     <Text style={styles.itemQuantity}>Quantity: {item.quantity}</Text>
-  //   </View>
-  // );
+  const handleRemoveFromCart = (id: number) => {
+    dispatch(removeFromCart(id));
+  };
 
   return (
     <View style={styles.container}>
-      <Header backPress title="Check out" />
-      {/* <FlatList
-        data={cartItems}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-      />
-      <View style={styles.totalPriceContainer}>
-        <Text style={styles.totalPriceLabel}>Total Price:</Text>
-        <Text style={styles.totalPrice}>${totalPrice.toFixed(2)}</Text>
-      </View> */}
+      <Header backPress title="Cart" />
+      {cartItems.map(item => (
+        <View key={item.id} style={styles.row}>
+          <Image source={{uri: item.image}} style={styles.image} />
+          <View style={styles.detailsContainer}>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.price}>Price: ${item.price.toFixed(2)}</Text>
+            <Text style={styles.quantity}>Quantity: {item.quantity}</Text>
+          </View>
+          <View>
+            <TouchableOpacity
+              onPress={() => handleUpdateQuantity(item.id, item.quantity + 1)}>
+              <Entypo
+                name="plus"
+                color={'green'}
+                size={responsiveFontSize(3)}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                if (item.quantity > 1) {
+                  handleUpdateQuantity(item.id, item.quantity - 1);
+                }
+              }}>
+              <Entypo
+                name="minus"
+                color={'royalblue'}
+                size={responsiveFontSize(3)}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleRemoveFromCart(item.id)}>
+              <MaterialCommunityIcons
+                name="delete"
+                color={'red'}
+                size={responsiveFontSize(3)}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ))}
     </View>
   );
 };
 
-export default Cart;
+export default CartScreen;

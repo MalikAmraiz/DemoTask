@@ -5,14 +5,12 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-
-export const FloatingButton: React.FC = () => {
-  const handleAddToCart = () => {
-    console.log('Item added to cart!');
-  };
-
+interface ButtonProps {
+  onPress?: () => void;
+}
+export const FloatingButton: React.FC<ButtonProps> = ({onPress}) => {
   return (
-    <TouchableOpacity onPress={handleAddToCart} style={styles.floatingButton}>
+    <TouchableOpacity onPress={onPress} style={styles.floatingButton}>
       <View>
         <Text style={styles.buttonText}>Add to Cart</Text>
       </View>

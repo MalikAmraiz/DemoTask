@@ -3,7 +3,16 @@
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import React, {useEffect, useState} from 'react';
-import {FlatList, Image, Text, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {responsiveHeight} from 'react-native-responsive-dimensions';
+import EmptyListComponent from '../../components/EmptyList';
 import Header from '../../components/Header';
 import {fetchAllProducts, fetchCategoryProducts} from '../../services';
 import RootStackParamList from '../../types';
@@ -22,16 +31,24 @@ type ProductListProps = {
 };
 const ProductList: React.FC<ProductListProps> = ({route, navigation}) => {
   const [data, setData] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const category = route?.params?.category || '';
   useEffect(() => {
     fetchData();
   }, []);
   const fetchData = async () => {
-    // condition applied to fetch product list from an API here and update the state.
-    let allProducts = category
-      ? await fetchCategoryProducts(category)
-      : await fetchAllProducts();
-    setData(allProducts.products);
+    try {
+      // condition applied to fetch product list from an API here and update the state.
+      let allProducts = category
+        ? await fetchCategoryProducts(category)
+        : await fetchAllProducts();
+      setData(allProducts.products);
+    } catch (error) {
+      console.log('error while fetching products', error);
+    } finally {
+      setLoading(false);
+    }
   };
   const renderItem = ({item}: {item: Product}) => (
     <TouchableOpacity
@@ -44,7 +61,18 @@ const ProductList: React.FC<ProductListProps> = ({route, navigation}) => {
       <Text>${item.price.toFixed(2)}</Text>
     </TouchableOpacity>
   );
-
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Header backPress title={'Product List'} cartPress />
+        <ActivityIndicator
+          color={'black'}
+          size={'small'}
+          style={{marginTop: responsiveHeight(40), alignSelf: 'center'}}
+        />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <Header backPress title={'Product List'} cartPress />
@@ -54,6 +82,7 @@ const ProductList: React.FC<ProductListProps> = ({route, navigation}) => {
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         numColumns={2}
+        ListEmptyComponent={EmptyListComponent}
       />
     </View>
   );

@@ -1,10 +1,13 @@
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import React, {useEffect, useState} from 'react';
-import {Image, ScrollView, Text, View} from 'react-native';
+import {ActivityIndicator, Image, ScrollView, Text, View} from 'react-native';
+import {responsiveHeight} from 'react-native-responsive-dimensions';
+import {useDispatch} from 'react-redux';
 import FloatingButton from '../../components/FloatingButton';
 import Header from '../../components/Header';
 import {fetchProductDetails} from '../../services';
+import {addToCart} from '../../store/cartSlice';
 import RootStackParamList from '../../types';
 import {Product} from '../../types/interfaces';
 import {styles} from './styles';
@@ -26,6 +29,8 @@ interface ProductDetailsProps {
 }
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({route, navigation}) => {
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
   const {productId} = route.params;
   const intitailState: Product = {
     id: 1,
@@ -45,10 +50,41 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({route, navigation}) => {
     fetchData();
   }, []);
   const fetchData = async () => {
-    // fetch product data from an API here and update the state.
-    let detail = await fetchProductDetails(productId);
-    setData(detail);
+    try {
+      // fetch product data from an API here and update the state.
+      let detail = await fetchProductDetails(productId);
+      setData(detail);
+    } catch (error) {
+      console.log('error while fetching product details', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleAddToCart = () => {
+    dispatch(
+      addToCart({
+        id: data.id,
+        title: data.title,
+        price: data.price,
+        image: data.thumbnail,
+        quantity: 1,
+      }),
+    );
+    navigation.navigate('Cart');
+  };
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Header backPress title={'Product Details'} cartPress />
+        <ActivityIndicator
+          color={'black'}
+          size={'small'}
+          style={{marginTop: responsiveHeight(40), alignSelf: 'center'}}
+        />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <Header backPress title={'Product Details'} cartPress />
@@ -83,7 +119,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({route, navigation}) => {
           ))}
         </ScrollView>
       </ScrollView>
-      <FloatingButton />
+      <FloatingButton onPress={handleAddToCart} />
     </View>
   );
 };

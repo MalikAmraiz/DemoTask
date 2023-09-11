@@ -1,11 +1,13 @@
 import {StackNavigationProp} from '@react-navigation/stack';
 import React, {useEffect, useState} from 'react';
+import {ActivityIndicator} from 'react-native';
 import {FlatList, Text, TouchableOpacity, View} from 'react-native';
 import {
   responsiveFontSize,
   responsiveHeight,
 } from 'react-native-responsive-dimensions';
 import Icon from 'react-native-vector-icons/Entypo';
+import EmptyListComponent from '../../components/EmptyList';
 import Header from '../../components/Header';
 import {fetchAllCategories} from '../../services';
 import RootStackParamList from '../../types';
@@ -20,13 +22,20 @@ interface CategoriesScreenProps {
 }
 const Categories: React.FC<CategoriesScreenProps> = ({navigation}) => {
   const [data, setData] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetchData();
   }, []);
   // Function to fetch categories list
   const fetchData = async () => {
-    let categories = await fetchAllCategories();
-    setData(categories);
+    try {
+      let categories = await fetchAllCategories();
+      setData(categories);
+    } catch (error) {
+      console.log('error while fetching categories', error);
+    } finally {
+      setLoading(false);
+    }
   };
   // Function to handle category selection
   const handleCategorySelect = (category: string) => {
@@ -48,6 +57,18 @@ const Categories: React.FC<CategoriesScreenProps> = ({navigation}) => {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Header title="Categories" cartPress />
+        <ActivityIndicator
+          color={'black'}
+          size={'small'}
+          style={{marginTop: responsiveHeight(40), alignSelf: 'center'}}
+        />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <Header title="Categories" cartPress />
@@ -67,6 +88,7 @@ const Categories: React.FC<CategoriesScreenProps> = ({navigation}) => {
           data={data}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderCategoryItem}
+          ListEmptyComponent={EmptyListComponent}
         />
       </View>
     </View>

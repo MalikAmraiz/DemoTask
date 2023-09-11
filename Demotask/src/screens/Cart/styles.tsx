@@ -1,37 +1,40 @@
 import {StyleSheet} from 'react-native';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
   },
-  cartItem: {
-    marginBottom: 16,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-  },
-  itemName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  itemPrice: {
-    fontSize: 16,
-  },
-  itemQuantity: {
-    fontSize: 16,
-  },
-  totalPriceContainer: {
-    marginTop: 16,
+  row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    padding: responsiveWidth(3),
+    borderBottomWidth: responsiveWidth(0.5),
+    borderBottomColor: '#ccc',
   },
-  totalPriceLabel: {
-    fontSize: 18,
+  image: {
+    width: responsiveWidth(20),
+    height: responsiveWidth(20),
+    marginRight: responsiveWidth(3),
+  },
+  detailsContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: responsiveFontSize(2),
     fontWeight: 'bold',
+    marginBottom: responsiveHeight(0.5),
   },
-  totalPrice: {
-    fontSize: 18,
+  price: {
+    fontSize: responsiveFontSize(2),
+    color: 'royalblue',
+    marginBottom: responsiveHeight(0.5),
+  },
+  quantity: {
+    fontSize: responsiveFontSize(2),
+    color: 'green',
   },
 });
