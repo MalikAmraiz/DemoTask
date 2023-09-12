@@ -83,7 +83,7 @@ const Categories: React.FC<CategoriesScreenProps> = ({navigation}) => {
           </TouchableOpacity>
         </View>
         <FlatList
-          contentContainerStyle={{paddingBottom: responsiveHeight(3)}}
+          contentContainerStyle={{paddingBottom: responsiveHeight(5)}}
           showsVerticalScrollIndicator={false}
           data={data}
           keyExtractor={(item, index) => index.toString()}
